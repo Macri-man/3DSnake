@@ -8,7 +8,7 @@ public class CameraSwitch : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		cams = Camera.allCameras;
-		for (int i = 0; i <= cams.Length - 1; i++) {
+		for (int i = 0; i < cams.Length; i++) {
 			if (cams[i].CompareTag("MainCamera")) {
 				cams[i].enabled = true;
 				cams[i].gameObject.SetActive(true);
@@ -16,6 +16,9 @@ public class CameraSwitch : MonoBehaviour {
 				cams[i].enabled = false;
 				cams[i].gameObject.SetActive(false);
 			}
+		}
+		for (int i = 0; i < cams.Length; i++) {
+			Debug.Log (cams[i].tag);
 		}
 	}
 	
@@ -38,7 +41,7 @@ public class CameraSwitch : MonoBehaviour {
 	}
 
 	private void switchCamera(int keynum){
-		for (int i = 0; i <= cams.Length - 1; i++) {
+		for (int i = 0; i < cams.Length; i++) {
 			if (cams[i] != null && keynum != i) {
 				cams[i].enabled = false;
 				cams[i].gameObject.SetActive(false);

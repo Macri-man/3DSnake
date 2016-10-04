@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour {
 
-	public float speed;
+	public float speed = 0.01f;
 	public float torque;
 
 	public Text score;
@@ -20,13 +20,19 @@ public class PlayerController : MonoBehaviour {
 	private float minAngle = 0.0f;
 	private float maxAngle = 90.0f;
 
+	private float angle = 0.0f;
+
+	private Quaternion startingRotation;
+
+	private bool straight = true;
+
 	// Use this for initialization
 	void Start () {
 		rb = GetComponent<Rigidbody>();
 		count = 0;
 		setScore ();
 		win.text = " ";
-
+		startingRotation = this.transform.rotation;
 	}
 	
 	// Update is called once per frame
@@ -73,9 +79,46 @@ public class PlayerController : MonoBehaviour {
 		Quaternion rotating = Quaternion.Euler (0, angles, 0);
 
 		Quaternion rot = Quaternion.Slerp (startQuat, endQuat, Time.deltaTime);
+		//rb.MoveRotation (rot);
+		if(straight){
+			rb.MovePosition (transform.position + transform.forward * Time.deltaTime);
+		}
 
-		rb.MoveRotation (rot);
-		rb.MovePosition (transform.position + transform.forward * Time.deltaTime);
+		/*if( Input.GetKeyDown( KeyCode.RightArrow ) ){
+			angle += 90;
+			StopAllCoroutines();
+			StartCoroutine(Rotate(angle));
+		}
+
+		//go to -90 degrees with left arrow
+		if( Input.GetKeyDown( KeyCode.LeftArrow ) ){
+			angle -= 90;
+			StopAllCoroutines();
+			StartCoroutine(Rotate(angle));
+		}*/
+
+
+		if( Input.GetKeyDown( KeyCode.RightArrow ) ){
+			straight = false;
+			angle += 90;
+			StartCoroutine (Rotate (angle));
+		}
+
+		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
+			straight = false;
+			angle -= 90;
+			StartCoroutine (Rotate (angle));
+		}
+	}
+
+	IEnumerator Rotate(float rotationAmount){
+		Quaternion finalRotation = Quaternion.Euler( 0, rotationAmount, 0 ) * startingRotation;
+
+		while(this.transform.rotation != finalRotation){
+			this.transform.rotation = Quaternion.Lerp(this.transform.rotation, finalRotation, Time.deltaTime*speed);
+			yield return 0;
+		}
+		straight = true;
 	}
 
 	void OnCollisionEnter(Collision collision){
@@ -83,7 +126,7 @@ public class PlayerController : MonoBehaviour {
 			Debug.DrawRay (contact.point, contact.normal, Color.white);
 		}
 
-		Debug.Log ("Enter Called");
+		//Debug.Log ("Enter Called");
 
 	}
 
@@ -92,7 +135,7 @@ public class PlayerController : MonoBehaviour {
 			Debug.DrawRay (contact.point, contact.normal, Color.blue);
 		}
 
-		Debug.Log ("Stay Called");
+		//Debug.Log ("Stay Called");
 	}
 
 	void OnCollisionExit(Collision collision){
@@ -100,11 +143,11 @@ public class PlayerController : MonoBehaviour {
 			Debug.DrawRay (contact.point, contact.normal, Color.green);
 		}
 
-		Debug.Log ("Exit Called");
+		//Debug.Log ("Exit Called");
 	}
 
 	void OnTriggerEnter(Collider other){
-		if (other.gameObject.CompareTag ("Orb")) {
+		if (other.gameObject.CompareTag ("Orb1")) {
 			Destroy (other.gameObject);
 			count = count + 1;
 			setScore ();
@@ -112,6 +155,15 @@ public class PlayerController : MonoBehaviour {
 		if (count >= 1) {
 			win.text = "WIN!";
 		}
+
+		if (other.gameObject.CompareTag ("Ramp")) {
+			Vector3 cross = Vector3.Cross (other.transform.forward, transform.forward);
+			float dot = Vector3.Dot (cross, transform.forward);
+			if(cross != Vector3.zero && dot == 0){
+				
+			}
+		}
+
 	}
 
 	void setScore(){
