@@ -1,15 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Rotater : MonoBehaviour {
+public class CameraLookatPlayer : MonoBehaviour {
+
+	public Transform player;
 
 	// Use this for initialization
 	void Start () {
-		
+	
 	}
-
+	
 	// Update is called once per frame
 	void Update () {
-		transform.Rotate (new Vector3 (Random.value * 25f, Random.value * 45f, Random.value * 65f) * Time.deltaTime);
+		transform.LookAt(player);
 	}
 }

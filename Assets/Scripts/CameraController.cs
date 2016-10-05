@@ -15,8 +15,8 @@ public class CameraController : MonoBehaviour {
 	float rotationY = 0.0F;
 	float rotationX = 0.0F;
 
-	public float senY = 1000.0F;
-	public float senX = 1000.0F;
+	public float senY = 100.0F;
+	public float senX = 100.0F;
 
 	public float minY = -45.0f;
 	public float maxY = 45.0f;

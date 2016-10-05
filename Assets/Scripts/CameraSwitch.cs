@@ -31,6 +31,9 @@ public class CameraSwitch : MonoBehaviour {
 		case "3":
 		case "4":
 		case "5":
+		case "6":
+		case "7":
+		case "8":
 			switchCamera ((int.Parse(Input.inputString)-1));
 			break;
 		default:

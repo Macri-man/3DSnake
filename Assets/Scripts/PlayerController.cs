@@ -1,15 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour {
 
-	public float speed = 0.01f;
+
+	public GameObject prefab;
+
+	//private List<Object> tailBlocks = new List<Object>(3);
+
+	public float speed;
 	public float torque;
 
 	public Text score;
 	public Text win;
 	public float count;
+
+	private bool gameover = false;
 
 	private Rigidbody rb;
 
@@ -33,6 +41,15 @@ public class PlayerController : MonoBehaviour {
 		setScore ();
 		win.text = " ";
 		startingRotation = this.transform.rotation;
+
+		StopAllCoroutines ();
+		StartCoroutine ("Movement");
+
+		/*for (int i = 0; i < tailBlocks.Count; i++) {
+			Debug.Log ("Intainsiate");
+			Vector3 newposition = transform.position + (-transform.forward) * i;
+			tailBlocks[i]=Instantiate (prefab, newposition, Quaternion.identity, transform.transform);
+		}*/
 	}
 	
 	// Update is called once per frame
@@ -80,9 +97,10 @@ public class PlayerController : MonoBehaviour {
 
 		Quaternion rot = Quaternion.Slerp (startQuat, endQuat, Time.deltaTime);
 		//rb.MoveRotation (rot);
-		if(straight){
+
+		/*if(straight){
 			rb.MovePosition (transform.position + transform.forward * Time.deltaTime);
-		}
+		}*/
 
 		/*if( Input.GetKeyDown( KeyCode.RightArrow ) ){
 			angle += 90;
@@ -101,12 +119,14 @@ public class PlayerController : MonoBehaviour {
 		if( Input.GetKeyDown( KeyCode.RightArrow ) ){
 			straight = false;
 			angle += 90;
+			StopAllCoroutines ();
 			StartCoroutine (Rotate (angle));
 		}
 
 		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 			straight = false;
 			angle -= 90;
+			StopAllCoroutines ();
 			StartCoroutine (Rotate (angle));
 		}
 	}
@@ -115,10 +135,21 @@ public class PlayerController : MonoBehaviour {
 		Quaternion finalRotation = Quaternion.Euler( 0, rotationAmount, 0 ) * startingRotation;
 
 		while(this.transform.rotation != finalRotation){
-			this.transform.rotation = Quaternion.Lerp(this.transform.rotation, finalRotation, Time.deltaTime*speed);
+			this.transform.rotation = Quaternion.Slerp(this.transform.rotation, finalRotation, Time.deltaTime * speed);
 			yield return 0;
 		}
-		straight = true;
+		StopAllCoroutines ();
+		StartCoroutine ("Movement");
+
+		//straight = true;
+	}
+
+	IEnumerator Movement(){
+
+		while(this.gameover != true){
+			rb.MovePosition (transform.position + transform.forward * Time.deltaTime);
+			yield return 0;
+		}
 	}
 
 	void OnCollisionEnter(Collision collision){
@@ -151,17 +182,14 @@ public class PlayerController : MonoBehaviour {
 			Destroy (other.gameObject);
 			count = count + 1;
 			setScore ();
-		}
-		if (count >= 1) {
-			win.text = "WIN!";
+
+			//Vector3 newposition = transform.position + (-transform.forward) * 2;
+
+			//tailBlocks.Add(Instantiate (prefab, newposition, Quaternion.identity));
 		}
 
-		if (other.gameObject.CompareTag ("Ramp")) {
-			Vector3 cross = Vector3.Cross (other.transform.forward, transform.forward);
-			float dot = Vector3.Dot (cross, transform.forward);
-			if(cross != Vector3.zero && dot == 0){
-				
-			}
+		if (count > 2) {
+			win.text = "WIN!";
 		}
 
 	}
