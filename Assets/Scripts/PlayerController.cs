@@ -2,13 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Linq;
+using System.Text.RegularExpressions;
+
 
 public class PlayerController : MonoBehaviour {
 
 
-	public GameObject prefab;
+	public GameObject Snake;
 
-	//private List<Object> tailBlocks = new List<Object>(3);
+	private List<GameObject> tailBlocks;
 
 	public float speed;
 	public float torque;
@@ -17,9 +20,13 @@ public class PlayerController : MonoBehaviour {
 	public Text win;
 	public float count;
 
+	private bool keypress = true;
+
 	private bool gameover = false;
 
 	private Rigidbody rb;
+
+	private float gravity = 9.8f;
 
 	public Quaternion rotate;
 
@@ -34,14 +41,50 @@ public class PlayerController : MonoBehaviour {
 
 	private bool straight = true;
 
+	private Transform position;
+
+	TailController newTailcontrol;
+
+	public int activeState;
+
+
 	// Use this for initialization
 	void Start () {
 		rb = GetComponent<Rigidbody>();
+
 		count = 0;
 		setScore ();
 		win.text = " ";
 		startingRotation = this.transform.rotation;
 
+		tailBlocks = new List<GameObject> (GameObject.FindGameObjectsWithTag ("SnakeTail"));
+
+		tailBlocks.Sort ((x, y) => string.Compare(x.name, y.name));
+
+		Vector3 offsetfirst = tailBlocks [0].transform.position - transform.position;
+		offsetfirst = offsetfirst.normalized * transform.localScale.y;  
+		tailBlocks [0].transform.position = offsetfirst + transform.position;
+		tailBlocks [0].GetComponent<TailController> ().prev = this.gameObject;
+		tailBlocks [0].GetComponent<TailController> ().next = tailBlocks [1];
+
+		for (int i = 1; i < tailBlocks.Count; i++) {
+			Vector3 offsets = tailBlocks [i].transform.position - tailBlocks [i-1].transform.position;
+			offsets = offsets.normalized * tailBlocks [i].transform.localScale.y;  
+			tailBlocks [i].transform.position = offsets + tailBlocks [i-1].transform.position;
+
+			tailBlocks [i].GetComponent<TailController> ().prev = tailBlocks [i - 1];
+			if (i != tailBlocks.Count-1) {
+				tailBlocks [i].GetComponent<TailController> ().next = tailBlocks [i + 1];
+			} else {
+				tailBlocks [i].GetComponent<TailController> ().next = null;
+			}
+		}
+
+		foreach (var item in tailBlocks) {
+			Debug.Log (item);
+		}
+
+	
 		StopAllCoroutines ();
 		StartCoroutine ("Movement");
 
@@ -54,7 +97,21 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		switch (Input.inputString) {
+		case "p":
+		case "P":
+			for (int i = 0; i < tailBlocks.Count; i++) {
+				Debug.Log (i);
+				Debug.Log (tailBlocks [i]);
+				Debug.Log (tailBlocks [i].GetComponent<TailController> ().prev);
+				Debug.Log (tailBlocks [i].GetComponent<TailController> ().next);
+				Debug.Log (tailBlocks [i].GetComponent<TailController> ().activeState);
+			}
+			break;
+		default:
+			//Debug.Log(String.Format("Invalid Input String: {0}",int.Parse(Input.inputString)));
+			break;
+		}
 	}
 
 	void LateUpdate(){
@@ -62,6 +119,8 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void FixedUpdate (){
+
+		rb.AddForce(-transform.up * gravity);
 		
 		/*Debug.Log (transform.rotation);
 		Debug.Log (Mathf.Round(transform.rotation.x) % 90);
@@ -114,43 +173,112 @@ public class PlayerController : MonoBehaviour {
 			StopAllCoroutines();
 			StartCoroutine(Rotate(angle));
 		}*/
+		
+		/*Vector3 offsetfirst = tailBlocks [0].transform.position - transform.position;
+		offsetfirst = offsetfirst.normalized * transform.localScale.y;  
+		tailBlocks [0].transform.position = offsetfirst + transform.position;
+
+		for (int i = 1; i < tailBlocks.Count; i++) {
+		Vector3 offsets = tailBlocks [i].transform.position - tailBlocks [i-1].transform.position;
+		offsets = offsets.normalized * tailBlocks [i].transform.localScale.y;  
+		tailBlocks [i].transform.position = offsets + tailBlocks [i-1].transform.position;
+		}*/
 
 
-		if( Input.GetKeyDown( KeyCode.RightArrow ) ){
-			straight = false;
-			angle += 90;
-			StopAllCoroutines ();
-			StartCoroutine (Rotate (angle));
-		}
+		/*Vector3 offsets =  transform.position - player.transform.position;
+		offsets = offset.normalized * transform.localScale.y;  
+		transform.position = offset + player.transform.position;*/
 
-		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
-			straight = false;
-			angle -= 90;
-			StopAllCoroutines ();
-			StartCoroutine (Rotate (angle));
+		
+		if (keypress) {
+
+			if (Input.GetKeyDown (KeyCode.RightArrow)) {
+				keypress = false;
+				angle += 90;
+				StopAllCoroutines ();
+				//StartCoroutine (Rotate (angle));
+			StartCoroutine (Rotate(GetRotation (transform.forward, transform.right)));
+			}
+
+			if (Input.GetKeyDown (KeyCode.LeftArrow)) {
+				keypress = false;
+				angle -= 90;
+				StopAllCoroutines ();
+				//StartCoroutine (Rotate (angle));
+			StartCoroutine (Rotate(GetRotation (transform.forward, -transform.right)));
+			}
 		}
 	}
 
-	IEnumerator Rotate(float rotationAmount){
-		Quaternion finalRotation = Quaternion.Euler( 0, rotationAmount, 0 ) * startingRotation;
+	IEnumerator RotateOnRamp(){
+
+			yield return 0;
+		
+	}
+
+	Quaternion GetRotation(Vector3 vec1, Vector3 vec2){
+		//Vector3 Crossvector = Vector3.Cross(vec1,vec2);
+		return	Quaternion.FromToRotation (vec1,vec2);
+	}
+
+	//IEnumerator Rotate(float rotationAmount){
+	IEnumerator Rotate(Quaternion rotation){
+		//Quaternion finalRotation = Quaternion.Euler( 0, rotationAmount, 0 ) * startingRotation;
+		Quaternion finalRotation = rotation * startingRotation;
 
 		while(this.transform.rotation != finalRotation){
 			this.transform.rotation = Quaternion.Slerp(this.transform.rotation, finalRotation, Time.deltaTime * speed);
 			yield return 0;
 		}
+
+		keypress = true;
+
+		Debug.Log ("Funal roataion");
+		Debug.Log (finalRotation);
+		Debug.Log (startingRotation);
+		Debug.Log (transform.rotation);
+		tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+		position = this.transform;
 		StopAllCoroutines ();
 		StartCoroutine ("Movement");
-
-		//straight = true;
 	}
 
+	/*IEnumerator Movement(){
+
+		while (true) {
+			rb.MovePosition (transform.position + transform.forward * speed * Time.deltaTime);
+			yield return 0;
+		}
+	}*/
+
+	
 	IEnumerator Movement(){
 
-		while(this.gameover != true){
+		while (true) {
 			rb.MovePosition (transform.position + transform.forward * Time.deltaTime);
+			
+			
+		/*Vector3 offsetfirst = tailBlocks [0].transform.position - transform.position;
+		offsetfirst = offsetfirst.normalized * transform.localScale.y;  
+		tailBlocks [0].transform.position = offsetfirst + transform.position;
+
+		for (int i = 1; i < tailBlocks.Count; i++) {
+			Vector3 offsets = tailBlocks [i].transform.position - tailBlocks [i-1].transform.position;
+			offsets = offsets.normalized * tailBlocks [i].transform.localScale.y;  
+			tailBlocks [i].transform.position = offsets + tailBlocks [i-1].transform.position;
+		}*/
+
 			yield return 0;
 		}
 	}
+
+	void jumpTailfoward(Vector3 vector){
+		if (Vector3.Dot (transform.forward, vector) ==  0) {
+			Debug.Log ("Right Angle");
+			
+		}
+	}
+	
 
 	void OnCollisionEnter(Collision collision){
 		foreach(ContactPoint contact  in collision.contacts){
@@ -178,22 +306,93 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other){
-		if (other.gameObject.CompareTag ("Orb1")) {
+
+	switch (other.gameObject.tag) {
+		case "Orb1":
 			Destroy (other.gameObject);
 			count = count + 1;
 			setScore ();
 
-			//Vector3 newposition = transform.position + (-transform.forward) * 2;
+			Debug.Log ("Ate Orb1 Create Snake");
 
-			//tailBlocks.Add(Instantiate (prefab, newposition, Quaternion.identity));
+			AddTail ();
+			break;
+		case "Orb2":
+			Destroy (other.gameObject);
+			count = count + 2;
+			setScore ();
+
+			Debug.Log ("Ate Orb2 Create Snake");
+
+			
+			AddTail ();
+			break;
+		case "Orb3":
+			Destroy (other.gameObject);
+			count = count + 3;
+			setScore ();
+
+			Debug.Log ("Ate Orb3 Create Snake");
+
+			AddTail ();
+			break;
+		case "HitGravity":
+			this.transform.rotation = GetRotation (transform.forward,transform.up);
+			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+			break;
+		case "FallGravity":
+			this.transform.rotation = GetRotation (transform.forward, -transform.up);
+			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+			break;
+		case "Teleport":
+
+		string numbers = Regex.Replace(this.gameObject.tag, "[^0-9]", "");
+		int num  =  int.Parse(numbers) + 1;
+
+		string tag = "Teleport" + num;
+
+			//this.transform = Teleport("TP" + (int.Parse(Regex.Replace(this.gameObject.tag, "[^0-9]", ""))+1));
+			break;
+		default:
+			break;
 		}
 
-		if (count > 2) {
+
+		/*if (other.gameObject.CompareTag ("Orb1")) {
+			Destroy (other.gameObject);
+			count = count + 1;
+			setScore ();
+
+			Debug.Log ("Ate Orb Create Snake");
+
+			AddTail ();
+		}*/
+
+		if (count > 4) {
 			win.text = "WIN!";
+			//StopAllCoroutines ();
 		}
 
 	}
 
+	
+	Transform Teleport(string tag){
+		GameObject door = GameObject.FindGameObjectWithTag (tag);
+		return door.transform;
+	}
+
+
+	void AddTail(){
+		GameObject Last = tailBlocks.Last();
+
+		Vector3 newposition = Last.transform.position + (-Last.transform.forward);
+		GameObject newTail = (GameObject)Instantiate (Snake, newposition, Quaternion.identity);
+		newTail.GetComponent<TailController> ().prev = Last;
+		newTail.GetComponent<TailController> ().next = null;
+		tailBlocks [tailBlocks.Count - 1].GetComponent<TailController> ().next = newTail;
+		tailBlocks.Add(newTail);
+	}
+	
 	void setScore(){
 		score.text = "Score: " + count.ToString ();
 	}

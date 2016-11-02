@@ -5,6 +5,8 @@ public class CameraController : MonoBehaviour {
 
 	public GameObject player;
 
+	private GameObject Camera ;
+
 	private Vector3 offset;
 
 	public float horizontalSpeed = 2.0F;
@@ -35,11 +37,11 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void LateUpdate () {
-		transform.position = player.transform.position + offset;
 		if (Input.GetMouseButton (0) || Input.GetMouseButton (1)) {
 			if (gameObject.CompareTag ("FPCamera")) {
 				rotationX += Input.GetAxis ("Mouse X") * senX * Time.deltaTime;
 				rotationY += Input.GetAxis ("Mouse Y") * senY * Time.deltaTime;
+
 			}
 			
 			if (gameObject.CompareTag ("MainCamera")) {
@@ -49,11 +51,28 @@ public class CameraController : MonoBehaviour {
 			
 		}
 
-		rotationX += Input.GetAxis ("Horizontal") * senX * Time.deltaTime;
-		rotationY += Input.GetAxis ("Vertical") * senY * Time.deltaTime;
+		if (gameObject.CompareTag ("FPCamera")) {
+			rotationX += Input.GetAxis ("Horizontal") * senX * Time.deltaTime;
+			rotationY += Input.GetAxis ("Vertical") * senY * Time.deltaTime;
 
-		rotationY = Mathf.Clamp (rotationY, minY, maxY);
-		transform.localEulerAngles = new Vector3 (-rotationY, rotationX, 0);
+			rotationY = Mathf.Clamp (rotationY, minY, maxY);
+			transform.localEulerAngles = new Vector3 (-rotationY, rotationX, 0);
+
+			transform.position = player.transform.position + offset + (player.transform.forward);
+
+
+		} else {
+
+			transform.position = player.transform.position + offset;
+
+			rotationX += Input.GetAxis ("Horizontal") * senX * Time.deltaTime;
+			rotationY += Input.GetAxis ("Vertical") * senY * Time.deltaTime;
+
+			rotationY = Mathf.Clamp (rotationY, minY, maxY);
+			transform.localEulerAngles = new Vector3 (-rotationY, rotationX, 0);
+		}
+
+
 
 	}
 }

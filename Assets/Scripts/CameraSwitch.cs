@@ -17,9 +17,9 @@ public class CameraSwitch : MonoBehaviour {
 				cams[i].gameObject.SetActive(false);
 			}
 		}
-		for (int i = 0; i < cams.Length; i++) {
+		/*for (int i = 0; i < cams.Length; i++) {
 			Debug.Log (cams[i].tag);
-		}
+		}*/
 	}
 	
 	// Update is called once per frame
