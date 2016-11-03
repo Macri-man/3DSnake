@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour {
 
 	private List<GameObject> tailBlocks;
 
+	private List<GameObject> Teleports;
+
 	public float speed;
 	public float torque;
 
@@ -57,6 +59,10 @@ public class PlayerController : MonoBehaviour {
 		win.text = " ";
 		startingRotation = this.transform.rotation;
 
+		Teleports = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Teleport"));
+
+		Teleports.Sort ((x, y) => string.Compare(x.name, y.name));
+
 		tailBlocks = new List<GameObject> (GameObject.FindGameObjectsWithTag ("SnakeTail"));
 
 		tailBlocks.Sort ((x, y) => string.Compare(x.name, y.name));
@@ -84,6 +90,10 @@ public class PlayerController : MonoBehaviour {
 			Debug.Log (item);
 		}
 
+		foreach (var port in Teleports) {
+			Debug.Log (port);
+		}
+
 	
 		StopAllCoroutines ();
 		StartCoroutine ("Movement");
@@ -107,6 +117,10 @@ public class PlayerController : MonoBehaviour {
 				Debug.Log (tailBlocks [i].GetComponent<TailController> ().next);
 				Debug.Log (tailBlocks [i].GetComponent<TailController> ().activeState);
 			}
+			break;
+
+		case "v":
+			Debug.Log ((Quaternion.Inverse(GetRotation (transform.forward, transform.up)) * transform.rotation).eulerAngles);
 			break;
 		default:
 			//Debug.Log(String.Format("Invalid Input String: {0}",int.Parse(Input.inputString)));
@@ -195,48 +209,47 @@ public class PlayerController : MonoBehaviour {
 			if (Input.GetKeyDown (KeyCode.RightArrow)) {
 				keypress = false;
 				angle += 90;
+			Debug.Log("Turn Right");
+			Debug.Log (GetRotation (transform.forward, transform.right).eulerAngles);
+			Debug.Log ((GetRotation (transform.forward, -transform.right).eulerAngles));
+			Debug.Log("End Turn Right");
 				StopAllCoroutines ();
 				//StartCoroutine (Rotate (angle));
-			StartCoroutine (Rotate(GetRotation (transform.forward, transform.right)));
+				StartCoroutine (Rotate(GetRotation (transform.forward, transform.right)));
 			}
 
 			if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 				keypress = false;
 				angle -= 90;
+			Debug.Log("Turn left");
+			Debug.Log (GetRotation (transform.forward, transform.right).eulerAngles);
+			Debug.Log ((GetRotation (transform.forward, -transform.right).eulerAngles));
+			Debug.Log("End Turn left");
 				StopAllCoroutines ();
 				//StartCoroutine (Rotate (angle));
-			StartCoroutine (Rotate(GetRotation (transform.forward, -transform.right)));
+				StartCoroutine (Rotate(GetRotation (transform.forward, -transform.right)));
 			}
 		}
-	}
-
-	IEnumerator RotateOnRamp(){
-
-			yield return 0;
-		
-	}
-
-	Quaternion GetRotation(Vector3 vec1, Vector3 vec2){
-		//Vector3 Crossvector = Vector3.Cross(vec1,vec2);
-		return	Quaternion.FromToRotation (vec1,vec2);
 	}
 
 	//IEnumerator Rotate(float rotationAmount){
 	IEnumerator Rotate(Quaternion rotation){
 		//Quaternion finalRotation = Quaternion.Euler( 0, rotationAmount, 0 ) * startingRotation;
-		Quaternion finalRotation = rotation * startingRotation;
+		Quaternion finalRotation = rotation *  this.transform.rotation;
 
 		while(this.transform.rotation != finalRotation){
 			this.transform.rotation = Quaternion.Slerp(this.transform.rotation, finalRotation, Time.deltaTime * speed);
 			yield return 0;
 		}
 
+		this.transform.rotation = finalRotation;
+
 		keypress = true;
 
-		Debug.Log ("Funal roataion");
-		Debug.Log (finalRotation);
-		Debug.Log (startingRotation);
-		Debug.Log (transform.rotation);
+		Debug.Log ("Final rotation");
+		Debug.Log (finalRotation.eulerAngles);
+		Debug.Log (startingRotation.eulerAngles);
+		Debug.Log (transform.rotation.eulerAngles);
 		tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 		position = this.transform;
 		StopAllCoroutines ();
@@ -307,7 +320,7 @@ public class PlayerController : MonoBehaviour {
 
 	void OnTriggerEnter(Collider other){
 
-	switch (other.gameObject.tag) {
+		switch (other.gameObject.tag) {
 		case "Orb1":
 			Destroy (other.gameObject);
 			count = count + 1;
@@ -337,21 +350,41 @@ public class PlayerController : MonoBehaviour {
 			AddTail ();
 			break;
 		case "HitGravity":
-			this.transform.rotation = GetRotation (transform.forward,transform.up);
+			Debug.Log ("hitgravity");
+		Debug.Log (Quaternion.Inverse(GetRotation (transform.forward, transform.up)));
+		Debug.Log ((Vector3.Cross(transform.rotation.eulerAngles.normalized, transform.forward) * 90) + this.transform.rotation.eulerAngles);
+		Debug.Log (GetRotation (transform.rotation.eulerAngles.normalized, -transform.forward).eulerAngles);
+		Debug.Log ((Quaternion.Inverse(GetRotation (transform.forward, transform.up)) * this.transform.rotation).eulerAngles);
+		this.transform.rotation = Quaternion.Euler((GetRotation (-transform.forward, transform.up).eulerAngles + this.transform.rotation.eulerAngles));
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+			Debug.Log ("End hitgravity");
 			break;
 		case "FallGravity":
 			this.transform.rotation = GetRotation (transform.forward, -transform.up);
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 			break;
 		case "Teleport":
+			
+			GameObject tp;
 
-		string numbers = Regex.Replace(this.gameObject.tag, "[^0-9]", "");
-		int num  =  int.Parse(numbers) + 1;
+			if (int.Parse (Regex.Replace (other.gameObject.name, "[^0-9]", "")) % 2 == 0) {
+				tp = Teleports [Teleports.IndexOf(other.gameObject) + 1];
+			} else {
+				tp = Teleports [Teleports.IndexOf(other.gameObject) - 1];
+			}
+		
 
-		string tag = "Teleport" + num;
+			string numbers = Regex.Replace (other.gameObject.name, "[^0-9]", "");
+			int num = int.Parse (numbers) + 1;
 
-			//this.transform = Teleport("TP" + (int.Parse(Regex.Replace(this.gameObject.tag, "[^0-9]", ""))+1));
+			string name = "Teleport" + num;
+
+			//Transform temp = Teleport ("Teleport" + (int.Parse (Regex.Replace (this.gameObject.name, "[^0-9]", "")) + 1));
+
+			this.transform.position = tp.transform.position;
+			this.transform.rotation = tp.transform.rotation;
+
+			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 			break;
 		default:
 			break;
@@ -374,10 +407,16 @@ public class PlayerController : MonoBehaviour {
 		}
 
 	}
+	
+
+	Quaternion GetRotation(Vector3 vec1, Vector3 vec2){
+		//Vector3 Crossvector = Vector3.Cross(vec1,vec2);
+		return	Quaternion.FromToRotation (vec1,vec2);
+	}
 
 	
-	Transform Teleport(string tag){
-		GameObject door = GameObject.FindGameObjectWithTag (tag);
+	Transform Teleport(string name){
+		GameObject door = GameObject.Find(name);
 		return door.transform;
 	}
 
