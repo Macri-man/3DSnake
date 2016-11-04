@@ -5,7 +5,7 @@ public class CameraController : MonoBehaviour {
 
 	public GameObject player;
 
-	private GameObject Camera ;
+	private GameObject Camera;
 
 	private Vector3 offset;
 
@@ -55,24 +55,21 @@ public class CameraController : MonoBehaviour {
 			rotationX += Input.GetAxis ("Horizontal") * senX * Time.deltaTime;
 			rotationY += Input.GetAxis ("Vertical") * senY * Time.deltaTime;
 
-			rotationY = Mathf.Clamp (rotationY, minY, maxY);
+			//rotationY = Mathf.Clamp (rotationY, minY, maxY);
 			transform.localEulerAngles = new Vector3 (-rotationY, rotationX, 0);
 
-			transform.position = player.transform.position + offset + (player.transform.forward);
-
+			transform.position = player.transform.position + player.transform.forward;
 
 		} else {
 
-			transform.position = player.transform.position + offset;
+			transform.position = player.transform.position + player.transform.up;
 
 			rotationX += Input.GetAxis ("Horizontal") * senX * Time.deltaTime;
 			rotationY += Input.GetAxis ("Vertical") * senY * Time.deltaTime;
 
-			rotationY = Mathf.Clamp (rotationY, minY, maxY);
+			//rotationY = Mathf.Clamp (rotationY, minY, maxY);
 			transform.localEulerAngles = new Vector3 (-rotationY, rotationX, 0);
 		}
-
-
 
 	}
 }

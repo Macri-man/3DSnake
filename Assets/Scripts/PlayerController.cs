@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour {
 
 	private Rigidbody rb;
 
-	private float gravity = 9.8f;
+	private float gravity = 2f;
 
 	public Quaternion rotate;
 
@@ -120,7 +120,12 @@ public class PlayerController : MonoBehaviour {
 			break;
 
 		case "v":
-			Debug.Log ((Quaternion.Inverse(GetRotation (transform.forward, transform.up)) * transform.rotation).eulerAngles);
+			Debug.Log ((this.transform.rotation * GetRotation (transform.forward, transform.up)).eulerAngles);
+			Debug.Log ((GetRotation (transform.right, transform.forward) * this.transform.rotation).eulerAngles);
+			Debug.Log (Vector3.Cross(new Vector3(0,0,1),new Vector3(0,1,0)));
+			Debug.Log (Vector3.Cross(transform.forward,transform.up));
+			Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation).eulerAngles);
+			Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation));
 			break;
 		default:
 			//Debug.Log(String.Format("Invalid Input String: {0}",int.Parse(Input.inputString)));
@@ -351,26 +356,28 @@ public class PlayerController : MonoBehaviour {
 			break;
 		case "HitGravity":
 			Debug.Log ("hitgravity");
-		Debug.Log (Quaternion.Inverse(GetRotation (transform.forward, transform.up)));
-		Debug.Log ((Vector3.Cross(transform.rotation.eulerAngles.normalized, transform.forward) * 90) + this.transform.rotation.eulerAngles);
-		Debug.Log (GetRotation (transform.rotation.eulerAngles.normalized, -transform.forward).eulerAngles);
-		Debug.Log ((Quaternion.Inverse(GetRotation (transform.forward, transform.up)) * this.transform.rotation).eulerAngles);
-		this.transform.rotation = Quaternion.Euler((GetRotation (-transform.forward, transform.up).eulerAngles + this.transform.rotation.eulerAngles));
+		Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation).eulerAngles);
+		Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation));
+		Debug.Log (transform.up);
+		Debug.Log (Vector3.up);
+		this.transform.rotation = GetRotation (Vector3.up, -transform.forward) * this.transform.rotation;
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 			Debug.Log ("End hitgravity");
 			break;
 		case "FallGravity":
+		Debug.Log ("fallgravity");
 			this.transform.rotation = GetRotation (transform.forward, -transform.up);
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+		Debug.Log ("fallgravity");
 			break;
 		case "Teleport":
-			
+			Debug.Log ("teleport");
 			GameObject tp;
 
 			if (int.Parse (Regex.Replace (other.gameObject.name, "[^0-9]", "")) % 2 == 0) {
-				tp = Teleports [Teleports.IndexOf(other.gameObject) + 1];
+				tp = Teleports [Teleports.IndexOf (other.gameObject) + 1];
 			} else {
-				tp = Teleports [Teleports.IndexOf(other.gameObject) - 1];
+				tp = Teleports [Teleports.IndexOf (other.gameObject) - 1];
 			}
 		
 
@@ -379,10 +386,18 @@ public class PlayerController : MonoBehaviour {
 
 			string name = "Teleport" + num;
 
+			Debug.Log (tp.name);
+			Debug.Log (tp.tag);
+			Debug.Log (tp.transform.position);
+			Debug.Log (tp.transform.position + tp.transform.forward * 2);
+			Debug.Log (tp.transform.rotation);
 			//Transform temp = Teleport ("Teleport" + (int.Parse (Regex.Replace (this.gameObject.name, "[^0-9]", "")) + 1));
 
-			this.transform.position = tp.transform.position;
+			this.transform.position = tp.transform.position + tp.transform.forward * 2;
 			this.transform.rotation = tp.transform.rotation;
+			
+			GameObject.Find ("Main Camera").transform.rotation = tp.transform.rotation;
+			GameObject.Find ("FPCamera").transform.rotation = tp.transform.rotation;
 
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 			break;
