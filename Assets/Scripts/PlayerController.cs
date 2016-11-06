@@ -15,6 +15,9 @@ public class PlayerController : MonoBehaviour {
 
 	private List<GameObject> Teleports;
 
+	private GameObject mainCamera;
+	private GameObject fpCamera;
+
 	public float speed;
 	public float torque;
 
@@ -93,6 +96,9 @@ public class PlayerController : MonoBehaviour {
 		foreach (var port in Teleports) {
 			Debug.Log (port);
 		}
+
+		mainCamera = GameObject.Find ("Main Camera");
+		fpCamera = GameObject.Find ("FPCamera");
 
 	
 		StopAllCoroutines ();
@@ -362,12 +368,16 @@ public class PlayerController : MonoBehaviour {
 		Debug.Log (Vector3.up);
 		this.transform.rotation = GetRotation (Vector3.up, -transform.forward) * this.transform.rotation;
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+		mainCamera.transform.rotation = this.transform.rotation;
+		fpCamera.transform.rotation = this.transform.rotation;
 			Debug.Log ("End hitgravity");
 			break;
 		case "FallGravity":
 		Debug.Log ("fallgravity");
-			this.transform.rotation = GetRotation (transform.forward, -transform.up);
-			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+		this.transform.rotation = GetRotation (Vector3.up, -transform.forward) * this.transform.rotation;
+		tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+		mainCamera.transform.rotation = this.transform.rotation;
+		fpCamera.transform.rotation = this.transform.rotation;
 		Debug.Log ("fallgravity");
 			break;
 		case "Teleport":
@@ -396,8 +406,8 @@ public class PlayerController : MonoBehaviour {
 			this.transform.position = tp.transform.position + tp.transform.forward * 2;
 			this.transform.rotation = tp.transform.rotation;
 			
-			GameObject.Find ("Main Camera").transform.rotation = tp.transform.rotation;
-			GameObject.Find ("FPCamera").transform.rotation = tp.transform.rotation;
+			fpCamera.transform.rotation = tp.transform.rotation;
+			fpCamera.transform.rotation = tp.transform.rotation;
 
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 			break;
