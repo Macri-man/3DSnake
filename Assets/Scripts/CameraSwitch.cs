@@ -49,7 +49,7 @@ public class CameraSwitch : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		/*
+		
 		switch (Input.inputString) {
 		case "1":
 		case "2":
@@ -64,7 +64,7 @@ public class CameraSwitch : MonoBehaviour {
 		default:
 			//Debug.Log(String.Format("Invalid Input String: {0}",int.Parse(Input.inputString)));
 			break;
-		}*/
+		}
 	
 	}
 
