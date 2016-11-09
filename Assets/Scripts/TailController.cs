@@ -11,6 +11,8 @@ public class TailController : MonoBehaviour {
 
 	Vector3 offset;
 
+	private Rigidbody rb;
+
 	private Vector3 holdtransform;
 	private Quaternion holdrotation;
 
@@ -31,6 +33,8 @@ public class TailController : MonoBehaviour {
 		activeState = 1;
 		turnleft = false;
 		turnright = false;
+
+		rb = GetComponent<Rigidbody>();
 	}
 	
 	// Update is called once per frame

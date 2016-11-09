@@ -15,8 +15,8 @@ public class PlayerController : MonoBehaviour {
 
 	private List<GameObject> Teleports;
 
-	private GameObject mainCamera;
-	private GameObject fpCamera;
+	private CameraController mainCamera;
+	private CameraController fpCamera;
 
 	public float speed;
 	public float torque;
@@ -59,7 +59,7 @@ public class PlayerController : MonoBehaviour {
 
 		count = 0;
 		setScore ();
-		win.text = " ";
+		win.text = "";
 		startingRotation = this.transform.rotation;
 
 		Teleports = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Teleport"));
@@ -97,8 +97,8 @@ public class PlayerController : MonoBehaviour {
 			Debug.Log (port);
 		}
 
-		mainCamera = GameObject.Find ("Main Camera");
-		fpCamera = GameObject.Find ("FPCamera");
+		mainCamera = GameObject.Find ("Main Camera").GetComponent<CameraController>();
+		fpCamera = GameObject.Find ("FPCamera").GetComponent<CameraController>();
 
 	
 		StopAllCoroutines ();
@@ -126,10 +126,9 @@ public class PlayerController : MonoBehaviour {
 			break;
 
 		case "v":
+			Debug.Log ((this.transform.rotation).eulerAngles);
 			Debug.Log ((this.transform.rotation * GetRotation (transform.forward, transform.up)).eulerAngles);
 			Debug.Log ((GetRotation (transform.right, transform.forward) * this.transform.rotation).eulerAngles);
-			Debug.Log (Vector3.Cross(new Vector3(0,0,1),new Vector3(0,1,0)));
-			Debug.Log (Vector3.Cross(transform.forward,transform.up));
 			Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation).eulerAngles);
 			Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation));
 			break;
@@ -137,6 +136,40 @@ public class PlayerController : MonoBehaviour {
 			//Debug.Log(String.Format("Invalid Input String: {0}",int.Parse(Input.inputString)));
 			break;
 		}
+	}
+
+	void OnDrawGizmos()
+	{
+		Color color;
+		color = Color.green;
+		// local up
+		DrawHelperAtCenter(this.transform.up, color, 4f);
+
+		color.g -= 0.5f;
+		// global up
+		//DrawHelperAtCenter(Vector3.up, color, 3f);
+
+		color = Color.blue;
+		// local forward
+		DrawHelperAtCenter(this.transform.forward, color, 4f);
+
+		color.b -= 0.5f;
+		// global forward
+		//DrawHelperAtCenter(Vector3.forward, color, 3f);
+
+		color = Color.red;
+		// local right
+		DrawHelperAtCenter(this.transform.right, color, 4f);
+
+		color.r -= 0.5f;
+		// global right
+		//DrawHelperAtCenter(Vector3.right, color, 3f);
+	}
+
+	private void DrawHelperAtCenter(Vector3 direction, Color color, float scale){
+		Gizmos.color = color;
+		Vector3 destination = transform.position + direction * scale;
+		Gizmos.DrawLine(transform.position, destination);
 	}
 
 	void LateUpdate(){
@@ -220,10 +253,10 @@ public class PlayerController : MonoBehaviour {
 			if (Input.GetKeyDown (KeyCode.RightArrow)) {
 				keypress = false;
 				angle += 90;
-			Debug.Log("Turn Right");
+		/*	Debug.Log("Turn Right");
 			Debug.Log (GetRotation (transform.forward, transform.right).eulerAngles);
 			Debug.Log ((GetRotation (transform.forward, -transform.right).eulerAngles));
-			Debug.Log("End Turn Right");
+			Debug.Log("End Turn Right");*/
 				StopAllCoroutines ();
 				//StartCoroutine (Rotate (angle));
 				StartCoroutine (Rotate(GetRotation (transform.forward, transform.right)));
@@ -232,10 +265,10 @@ public class PlayerController : MonoBehaviour {
 			if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 				keypress = false;
 				angle -= 90;
-			Debug.Log("Turn left");
+			/*Debug.Log("Turn left");
 			Debug.Log (GetRotation (transform.forward, transform.right).eulerAngles);
 			Debug.Log ((GetRotation (transform.forward, -transform.right).eulerAngles));
-			Debug.Log("End Turn left");
+			Debug.Log("End Turn left");*/
 				StopAllCoroutines ();
 				//StartCoroutine (Rotate (angle));
 				StartCoroutine (Rotate(GetRotation (transform.forward, -transform.right)));
@@ -246,14 +279,30 @@ public class PlayerController : MonoBehaviour {
 	//IEnumerator Rotate(float rotationAmount){
 	IEnumerator Rotate(Quaternion rotation){
 		//Quaternion finalRotation = Quaternion.Euler( 0, rotationAmount, 0 ) * startingRotation;
-		Quaternion finalRotation = rotation *  this.transform.rotation;
+	Quaternion finalRotation = rotation *  this.transform.localRotation;
 
 		while(this.transform.rotation != finalRotation){
-			this.transform.rotation = Quaternion.Slerp(this.transform.rotation, finalRotation, Time.deltaTime * speed);
+		this.transform.rotation = Quaternion.Slerp(this.transform.localRotation, finalRotation, Time.deltaTime * speed);
+
+
+
+		//mainCamera.rotationX = this.transform.localRotation.eulerAngles.y;
+		//mainCamera.rotationY = this.transform.localRotation.eulerAngles.x;
+		//fpCamera.rotationX = this.transform.localRotation.eulerAngles.y;
+		//fpCamera.rotationY = this.transform.localRotation.eulerAngles.x;
 			yield return 0;
 		}
 
 		this.transform.rotation = finalRotation;
+
+	//mainCamera.transform.rotation = this.transform.rotation;
+	//mainCamera.rotationX = 0;
+	//mainCamera.rotationY = 0;
+
+	//mainCamera.rotationX += this.transform.rotation.eulerAngles.y;
+	//mainCamera.rotationY = this.transform.rotation.eulerAngles.x;
+	//fpCamera.rotationX += this.transform.rotation.eulerAngles.y;
+	//fpCamera.rotationY = this.transform.rotation.eulerAngles.x;
 
 		keypress = true;
 
@@ -262,7 +311,8 @@ public class PlayerController : MonoBehaviour {
 		Debug.Log (startingRotation.eulerAngles);
 		Debug.Log (transform.rotation.eulerAngles);
 		tailBlocks [0].GetComponent<TailController> ().activeState = 4;
-		position = this.transform;
+
+
 		StopAllCoroutines ();
 		StartCoroutine ("Movement");
 	}
@@ -282,7 +332,8 @@ public class PlayerController : MonoBehaviour {
 			rb.MovePosition (transform.position + transform.forward * Time.deltaTime);
 			
 			
-		/*Vector3 offsetfirst = tailBlocks [0].transform.position - transform.position;
+		/*
+		Vector3 offsetfirst = tailBlocks [0].transform.position - transform.position;
 		offsetfirst = offsetfirst.normalized * transform.localScale.y;  
 		tailBlocks [0].transform.position = offsetfirst + transform.position;
 
@@ -290,7 +341,8 @@ public class PlayerController : MonoBehaviour {
 			Vector3 offsets = tailBlocks [i].transform.position - tailBlocks [i-1].transform.position;
 			offsets = offsets.normalized * tailBlocks [i].transform.localScale.y;  
 			tailBlocks [i].transform.position = offsets + tailBlocks [i-1].transform.position;
-		}*/
+		}
+		*/
 
 			yield return 0;
 		}
@@ -362,22 +414,48 @@ public class PlayerController : MonoBehaviour {
 			break;
 		case "HitGravity":
 			Debug.Log ("hitgravity");
-		Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation).eulerAngles);
-		Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation));
-		Debug.Log (transform.up);
-		Debug.Log (Vector3.up);
-		this.transform.rotation = GetRotation (Vector3.up, -transform.forward) * this.transform.rotation;
+			//Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation).eulerAngles);
+			//Debug.Log ((GetRotation (Vector3.up, -transform.forward) * this.transform.rotation));
+		//Debug.Log (transform.up);
+		//Debug.Log (Vector3.up);
+		Debug.Log ("hello");
+		Debug.Log (this.transform.rotation.eulerAngles);
+		Debug.Log ((GetRotation (transform.right, transform.forward) * this.transform.rotation).eulerAngles);
+			this.transform.rotation = GetRotation (Vector3.up, -transform.forward) * this.transform.rotation;
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
-		mainCamera.transform.rotation = this.transform.rotation;
-		fpCamera.transform.rotation = this.transform.rotation;
+		Debug.Log (this.transform.rotation.eulerAngles);
+		Debug.Log ("hello end");
+
+		mainCamera.rotationX = this.transform.rotation.eulerAngles.y;
+		mainCamera.rotationY = this.transform.rotation.eulerAngles.y;
+		/*
+		fpCamera.rotationX = this.transform.rotation.eulerAngles.y;
+		fpCamera.rotationY = this.transform.rotation.eulerAngles.x;*/
+
+
+			//mainCamera.transform.rotation = this.transform.rotation;
+			Debug.Log (this.transform.rotation.eulerAngles);
+		Debug.Log (mainCamera.gameObject.transform.rotation.eulerAngles);
+		Debug.Log (this.transform.rotation.eulerAngles);
+		Debug.Log (mainCamera.gameObject.transform.rotation.eulerAngles);
+
+		mainCamera.setDirection(this.transform.rotation,this.transform.rotation.eulerAngles.y,0);
+
+
 			Debug.Log ("End hitgravity");
 			break;
 		case "FallGravity":
 		Debug.Log ("fallgravity");
 		this.transform.rotation = GetRotation (Vector3.up, -transform.forward) * this.transform.rotation;
 		tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+	
+		/*mainCamera.rotationX = this.transform.rotation.eulerAngles.y;
+		mainCamera.rotationY = this.transform.rotation.eulerAngles.x;
+		fpCamera.rotationX = this.transform.rotation.eulerAngles.y;
+		fpCamera.rotationY = this.transform.rotation.eulerAngles.x;*/
+
 		mainCamera.transform.rotation = this.transform.rotation;
-		fpCamera.transform.rotation = this.transform.rotation;
+
 		Debug.Log ("fallgravity");
 			break;
 		case "Teleport":
@@ -405,9 +483,14 @@ public class PlayerController : MonoBehaviour {
 
 			this.transform.position = tp.transform.position + tp.transform.forward * 2;
 			this.transform.rotation = tp.transform.rotation;
-			
-			fpCamera.transform.rotation = tp.transform.rotation;
-			fpCamera.transform.rotation = tp.transform.rotation;
+
+		/*mainCamera.rotationX = this.transform.rotation.eulerAngles.x;
+		mainCamera.rotationY = this.transform.rotation.eulerAngles.y;
+		fpCamera.rotationX = this.transform.rotation.eulerAngles.x;
+		fpCamera.rotationY = this.transform.rotation.eulerAngles.y;*/
+
+		mainCamera.transform.rotation = this.transform.rotation;
+
 
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 			break;
