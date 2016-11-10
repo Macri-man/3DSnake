@@ -60,6 +60,7 @@ public class PlayerController : MonoBehaviour {
 		count = 0;
 		setScore ();
 		win.text = "";
+		speed = 2;
 		startingRotation = this.transform.rotation;
 
 		Teleports = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Teleport"));
@@ -203,7 +204,7 @@ public class PlayerController : MonoBehaviour {
 			rb.MovePosition (transform.position + transform.forward * Time.deltaTime);
 		}*/
 
-		direction = Input.GetAxis ("Horizontal");
+		/*direction = Input.GetAxis ("Horizontal");
 
 		Quaternion startQuat = transform.rotation;
 		Quaternion endQuat = startQuat * Quaternion.Euler (0f, 90f * direction, 0f);
@@ -212,7 +213,7 @@ public class PlayerController : MonoBehaviour {
 
 		Quaternion rotating = Quaternion.Euler (0, angles, 0);
 
-		Quaternion rot = Quaternion.Slerp (startQuat, endQuat, Time.deltaTime);
+		Quaternion rot = Quaternion.Slerp (startQuat, endQuat, Time.deltaTime);*/
 		//rb.MoveRotation (rot);
 
 		/*if(straight){
@@ -329,7 +330,7 @@ public class PlayerController : MonoBehaviour {
 	IEnumerator Movement(){
 
 		while (true) {
-			rb.MovePosition (transform.position + transform.forward * Time.deltaTime);
+		rb.MovePosition (transform.position + transform.forward * speed * Time.deltaTime);
 			
 			
 		/*
@@ -426,9 +427,10 @@ public class PlayerController : MonoBehaviour {
 		Debug.Log (this.transform.rotation.eulerAngles);
 		Debug.Log ("hello end");
 
+		/*
 		mainCamera.rotationX = this.transform.rotation.eulerAngles.y;
 		mainCamera.rotationY = this.transform.rotation.eulerAngles.y;
-		/*
+
 		fpCamera.rotationX = this.transform.rotation.eulerAngles.y;
 		fpCamera.rotationY = this.transform.rotation.eulerAngles.x;*/
 
@@ -439,14 +441,16 @@ public class PlayerController : MonoBehaviour {
 		Debug.Log (this.transform.rotation.eulerAngles);
 		Debug.Log (mainCamera.gameObject.transform.rotation.eulerAngles);
 
-		mainCamera.setDirection(this.transform.rotation,this.transform.rotation.eulerAngles.y,0);
-
+		//mainCamera.setDirection(this.transform.rotation,this.transform.rotation.eulerAngles.y,0);
+		mainCamera.startquaternion = this.transform.rotation;
+		mainCamera.rotationX = 0;
+		mainCamera.rotationY = 0;
 
 			Debug.Log ("End hitgravity");
 			break;
 		case "FallGravity":
 		Debug.Log ("fallgravity");
-		this.transform.rotation = GetRotation (Vector3.up, -transform.forward) * this.transform.rotation;
+		this.transform.rotation = GetRotation (Vector3.up, transform.forward) * this.transform.rotation;
 		tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 	
 		/*mainCamera.rotationX = this.transform.rotation.eulerAngles.y;
@@ -454,7 +458,9 @@ public class PlayerController : MonoBehaviour {
 		fpCamera.rotationX = this.transform.rotation.eulerAngles.y;
 		fpCamera.rotationY = this.transform.rotation.eulerAngles.x;*/
 
-		mainCamera.transform.rotation = this.transform.rotation;
+		mainCamera.startquaternion = this.transform.rotation;
+		mainCamera.rotationX = 0;
+		mainCamera.rotationY = 0;
 
 		Debug.Log ("fallgravity");
 			break;
@@ -489,8 +495,9 @@ public class PlayerController : MonoBehaviour {
 		fpCamera.rotationX = this.transform.rotation.eulerAngles.x;
 		fpCamera.rotationY = this.transform.rotation.eulerAngles.y;*/
 
-		mainCamera.transform.rotation = this.transform.rotation;
-
+			mainCamera.startquaternion = this.transform.rotation;
+			mainCamera.rotationX = 0;
+			mainCamera.rotationY = 0;
 
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 			break;
@@ -518,7 +525,6 @@ public class PlayerController : MonoBehaviour {
 	
 
 	Quaternion GetRotation(Vector3 vec1, Vector3 vec2){
-		//Vector3 Crossvector = Vector3.Cross(vec1,vec2);
 		return	Quaternion.FromToRotation (vec1,vec2);
 	}
 
@@ -533,7 +539,7 @@ public class PlayerController : MonoBehaviour {
 		GameObject Last = tailBlocks.Last();
 
 		Vector3 newposition = Last.transform.position + (-Last.transform.forward);
-		GameObject newTail = (GameObject)Instantiate (Snake, newposition, Quaternion.identity);
+		GameObject newTail = (GameObject)Instantiate (Snake, newposition,Last.transform.rotation);
 		newTail.GetComponent<TailController> ().prev = Last;
 		newTail.GetComponent<TailController> ().next = null;
 		tailBlocks [tailBlocks.Count - 1].GetComponent<TailController> ().next = newTail;

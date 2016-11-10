@@ -126,7 +126,7 @@ public class CameraController : MonoBehaviour {
 			//transform.rotation = Quaternion.Euler (-rotationY,0,0) * Quaternion.AngleAxis(rotationX, player.transform.up);
 			//rotationY = Mathf.Clamp (rotationY, minY, maxY);
 			//transform.rotation = Quaternion.AngleAxis(-rotationY, this.transform.right) * Quaternion.AngleAxis(rotationX, player.transform.up);
-
+			transform.rotation =  Quaternion.AngleAxis(-rotationY, this.transform.right) * Quaternion.AngleAxis (rotationX, player.transform.up) *  this.startquaternion;
 
 		} else {
 
