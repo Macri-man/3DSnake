@@ -45,17 +45,8 @@ public class CameraController : MonoBehaviour {
 		switch (Input.inputString) {
 		case "T":
 		case "t":
-			Debug.Log (rotationX);
-			Debug.Log (rotationY);
 			break;
-
 		case "u":
-			Debug.Log (rotationX);
-			Debug.Log (rotationY);
-			Debug.Log (Quaternion.AngleAxis (-rotationY, this.transform.right).eulerAngles);
-			Debug.Log (Quaternion.AngleAxis (rotationX, player.transform.up).eulerAngles);
-			Debug.Log((Quaternion.AngleAxis (-rotationY, this.transform.right)* Quaternion.AngleAxis (rotationX, player.transform.up)).eulerAngles);
-			Debug.Log (this.transform.rotation.eulerAngles);
 			break;
 		default:
 			//Debug.Log(String.Format("Invalid Input String: {0}",int.Parse(Input.inputString)));
@@ -139,58 +130,9 @@ public class CameraController : MonoBehaviour {
 			//rotationY = Mathf.Clamp (rotationY, minY, maxY);
 			//transform.localEulerAngles = getVectorRot(player.transform.up);
 			//transform.rotation = Quaternion.AngleAxis(-rotationY, player.transform.right) * Quaternion.AngleAxis(rotationX, player.transform.up);
-			/*
-			Quaternion angleforward = Quaternion.AngleAxis(-rotationY, player.transform.forward);
-			Quaternion angleright = Quaternion.AngleAxis(-rotationY, player.transform.right);
-			Vector3 restrictforward = new Vector3(Mathf.Clamp(angleforward.eulerAngles.x,minY,maxY),Mathf.Clamp(angleforward.eulerAngles.y,minY,maxY),Mathf.Clamp(angleforward.eulerAngles.z,minY,maxY));
-			Vector3 restrictright = new Vector3(Mathf.Clamp(angleright.eulerAngles.x,minY,maxY),Mathf.Clamp(angleright.eulerAngles.y,minY,maxY),Mathf.Clamp(angleright.eulerAngles.z,minY,maxY));
-			*/
-			//rotationY = Mathf.Clamp (rotationY, minY, maxY);
+
 			transform.rotation =  Quaternion.AngleAxis(-rotationY, this.transform.right) * Quaternion.AngleAxis (rotationX, player.transform.up) *  this.startquaternion;
 		}
 
 	}
-
-
-	Vector3 getVectorRot(Vector3 vector){
-		if (Vector3.up == vector) {
-			Debug.Log ("up");
-			return new Vector3 (-rotationY, rotationX, 0);
-		} else if (Vector3.right == vector) {
-			Debug.Log ("right");
-			return new Vector3 (0, rotationX, -rotationY);
-		} else if (Vector3.left == vector) {
-			Debug.Log ("left");
-			return new Vector3 (rotationX, 0, -rotationY);
-		} else if (Vector3.back == vector) {
-			Debug.Log ("back");
-			return new Vector3 (-rotationY, rotationX, 0);
-		} else if (Vector3.down == vector) {
-			Debug.Log ("down");
-			return new Vector3 (-rotationY, rotationX, 0);
-		} else {
-			Debug.Log ("Wrong Vector");
-			Debug.Log (vector);
-			return vector;
-		}
-		return vector;
-	}
-
-	public void setDirection(Quaternion rotation,float rotationX,float rotationY){
-		this.startquaternion = rotation;
-		Debug.Log("sendmessage");
-		directionRot = rotation.eulerAngles;
-		//this.rotationX = rotation.eulerAngles.y;
-		//this.rotationY = rotation.eulerAngles.x;
-		this.rotationX = 0;
-		this.rotationY = 0;
-		Debug.Log(this.transform.localRotation.eulerAngles);
-		Debug.Log(this.transform.rotation.eulerAngles);
-		Debug.Log(Quaternion.AngleAxis (-rotationY, player.transform.right).eulerAngles);
-		Debug.Log(((Quaternion.AngleAxis (-rotationY, this.transform.right) * Quaternion.AngleAxis (rotationX, player.transform.up)) * this.transform.rotation).eulerAngles);
-		//this.transform.localRotation = Quaternion.AngleAxis (-rotationY, this.transform.right) * Quaternion.AngleAxis (rotationX, player.transform.up);
-		Debug.Log(transform.localRotation.eulerAngles);
-		Debug.Log(transform.rotation.eulerAngles);
-	}
-		
 }

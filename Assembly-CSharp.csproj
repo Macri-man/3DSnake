@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\CameraLookatPlayer.cs" />
      <Compile Include="Assets\Scripts\CameraSwitch.cs" />
      <Compile Include="Assets\Scripts\GameStats.cs" />
+     <Compile Include="Assets\Scripts\OrbCreation.cs" />
      <Compile Include="Assets\Scripts\PlayerController.cs" />
      <Compile Include="Assets\Scripts\Rotater.cs" />
      <Compile Include="Assets\Scripts\SetTextureDoor.cs" />
