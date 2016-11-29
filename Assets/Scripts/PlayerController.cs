@@ -98,9 +98,11 @@ public class PlayerController : MonoBehaviour {
 			Debug.Log (port);
 		}
 
-		mainCamera = GameObject.Find ("Main Camera").GetComponent<CameraController>();
-		fpCamera = GameObject.Find ("FPCamera").GetComponent<CameraController>();
+		mainCamera = GameObject.Find ("MainCamera").GetComponent<CameraController>();
+		mainCamera.gameObject.SetActive (true);
 
+		fpCamera = GameObject.Find ("FPCamera").GetComponent<CameraController>();
+		fpCamera.gameObject.SetActive (false);
 	
 		StopAllCoroutines ();
 		StartCoroutine ("Movement");
@@ -126,7 +128,7 @@ public class PlayerController : MonoBehaviour {
 			}
 			break;
 
-		case "v":
+		case "o":
 			Debug.Log ((this.transform.rotation).eulerAngles);
 			Debug.Log ((this.transform.rotation * GetRotation (transform.forward, transform.up)).eulerAngles);
 			Debug.Log ((GetRotation (transform.right, transform.forward) * this.transform.rotation).eulerAngles);
@@ -184,28 +186,28 @@ public class PlayerController : MonoBehaviour {
 		
 		if (keypress) {
 
-			if (Input.GetKeyDown (KeyCode.RightArrow)) {
+			if (Input.GetKeyDown (KeyCode.D)) {
 				keypress = false;
-				angle += 90;
-		/*	Debug.Log("Turn Right");
+			Debug.Log("Turn Right");
 			Debug.Log (GetRotation (transform.forward, transform.right).eulerAngles);
 			Debug.Log ((GetRotation (transform.forward, -transform.right).eulerAngles));
-			Debug.Log("End Turn Right");*/
+			Debug.Log("End Turn Right");
 				StopAllCoroutines ();
 				//StartCoroutine (Rotate (angle));
+				StopCoroutine("Movement");
 				StartCoroutine (Rotate(GetRotation (transform.forward, transform.right)));
 			}
 
-			if (Input.GetKeyDown (KeyCode.LeftArrow)) {
+			if (Input.GetKeyDown (KeyCode.A)) {
 				keypress = false;
-				angle -= 90;
-			/*Debug.Log("Turn left");
+			Debug.Log("Turn left");
 			Debug.Log (GetRotation (transform.forward, transform.right).eulerAngles);
 			Debug.Log ((GetRotation (transform.forward, -transform.right).eulerAngles));
-			Debug.Log("End Turn left");*/
+			Debug.Log("End Turn left");
 				StopAllCoroutines ();
+				StopCoroutine("Movement");
 				//StartCoroutine (Rotate (angle));
-				StartCoroutine (Rotate(GetRotation (transform.forward, -transform.right)));
+				StartCoroutine (Rotate(GetRotation (this.transform.forward, -this.transform.right)));
 			}
 		}
 	}
@@ -213,17 +215,19 @@ public class PlayerController : MonoBehaviour {
 	//IEnumerator Rotate(float rotationAmount){
 	IEnumerator Rotate(Quaternion rotation){
 		//Quaternion finalRotation = Quaternion.Euler( 0, rotationAmount, 0 ) * startingRotation;
-	Quaternion finalRotation = rotation *  this.transform.localRotation;
+		Debug.Log("ROTATION");
+		Quaternion finalRotation = rotation * this.transform.rotation;
+		Debug.Log(finalRotation.eulerAngles);
+		Debug.Log(this.transform.rotation.eulerAngles);
 
 		while(this.transform.rotation != finalRotation){
-		this.transform.rotation = Quaternion.Slerp(this.transform.localRotation, finalRotation, Time.deltaTime * speed);
+			this.transform.rotation = Quaternion.Slerp(this.transform.rotation, finalRotation, Time.deltaTime);
+			//Debug.Log (this.transform.rotation.eulerAngles);
 
-
-
-		//mainCamera.rotationX = this.transform.localRotation.eulerAngles.y;
-		//mainCamera.rotationY = this.transform.localRotation.eulerAngles.x;
-		//fpCamera.rotationX = this.transform.localRotation.eulerAngles.y;
-		//fpCamera.rotationY = this.transform.localRotation.eulerAngles.x;
+			//mainCamera.rotationX = mainCamera.transform.rotation.eulerAngles.y + this.transform.localRotation.eulerAngles.y;
+			//mainCamera.rotationY = mainCamera.transform.rotation.eulerAngles.x + this.transform.localRotation.eulerAngles.x;
+			//fpCamera.rotationX = fpCamera.transform.rotation.eulerAngles.y + this.transform.rotation.eulerAngles.y;
+			//fpCamera.rotationY = fpCamera.transform.rotation.eulerAngles.x + this.transform.rotation.eulerAngles.x;
 			yield return 0;
 		}
 
@@ -233,9 +237,9 @@ public class PlayerController : MonoBehaviour {
 	//mainCamera.rotationX = 0;
 	//mainCamera.rotationY = 0;
 
-	//mainCamera.rotationX += this.transform.rotation.eulerAngles.y;
+	//mainCamera.rotationX = this.transform.rotation.eulerAngles.y;
 	//mainCamera.rotationY = this.transform.rotation.eulerAngles.x;
-	//fpCamera.rotationX += this.transform.rotation.eulerAngles.y;
+	//fpCamera.rotationX = this.transform.rotation.eulerAngles.y;
 	//fpCamera.rotationY = this.transform.rotation.eulerAngles.x;
 
 		keypress = true;
@@ -255,7 +259,7 @@ public class PlayerController : MonoBehaviour {
 	IEnumerator Movement(){
 
 		while (true) {
-		rb.MovePosition (transform.position + transform.forward * speed * Time.deltaTime);
+			rb.MovePosition (transform.position + transform.forward * speed * Time.deltaTime);
 			yield return 0;
 		}
 	}
@@ -303,8 +307,6 @@ public class PlayerController : MonoBehaviour {
 			other.GetComponentInParent<OrbCreation> ().gone = true;
 			other.GetComponentInParent<OrbCreation> ().count = 1;
 			Destroy (other.gameObject);
-			other.enabled = false;
-			other.gameObject.SetActive(false);
 			count = count + 2;
 			setScore ();
 
@@ -317,8 +319,6 @@ public class PlayerController : MonoBehaviour {
 			other.GetComponentInParent<OrbCreation> ().gone = true;
 			other.GetComponentInParent<OrbCreation> ().count = 1;
 			Destroy (other.gameObject);
-			other.enabled = false;
-			other.gameObject.SetActive(false);
 			count = count + 3;
 			setScore ();
 
@@ -393,6 +393,10 @@ public class PlayerController : MonoBehaviour {
 			fpCamera.rotationY = 0;
 
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
+			break;
+		case "Collision":
+			win.text = "LOSE!";
+			StopAllCoroutines ();
 			break;
 		default:
 			break;

@@ -23,7 +23,7 @@ public class OrbCreation : MonoBehaviour {
 	void Start () {
 		orbNum = Random.Range (1, 3);
 		count = 0;
-		reinitiate = Random.Range (205, 220);
+		reinitiate = Random.Range (521, 1000);
 		gone = false;
 		switch (orbNum) {
 		case 1:

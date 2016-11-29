@@ -11,7 +11,7 @@ public class TailController : MonoBehaviour {
 
 	Vector3 offset;
 
-	private Rigidbody rb;
+	//private Rigidbody rb;
 
 	private Vector3 holdtransform;
 	private Quaternion holdrotation;
@@ -34,7 +34,6 @@ public class TailController : MonoBehaviour {
 		turnleft = false;
 		turnright = false;
 
-		rb = GetComponent<Rigidbody>();
 	}
 	
 	// Update is called once per frame
@@ -114,14 +113,6 @@ public class TailController : MonoBehaviour {
 			break;
 		}
 
-	}
-
-	bool checkVectors(){
-		bool x = (holdtransform + prev.transform.forward).x == prev.transform.position.x;
-		bool y = (holdtransform + prev.transform.forward).y == prev.transform.position.y;
-		bool z = (holdtransform + prev.transform.forward).z == prev.transform.position.z;
-
-		return (x && y && z);
 	}
 
 	void OnTriggerEnter(Collider other){

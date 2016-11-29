@@ -22,8 +22,8 @@ public class CameraController : MonoBehaviour {
 	public float senY = 100.0F;
 	public float senX = 100.0F;
 
-	public float minY = -45.0f;
-	public float maxY = 45.0f;
+	public float minY;
+	public float maxY;
 
 	public float minX = -360.0F; 
 	public float maxX = 360.0F;
@@ -36,7 +36,9 @@ public class CameraController : MonoBehaviour {
 	void Start () {
 		axisRotation = 1;
 		offset = transform.position - player.transform.position;
-		startquaternion = this.transform.localRotation;
+		startquaternion = this.transform.rotation;
+		minY = -45.0f;
+		maxY = 45.0f;
 	}
 	
 	// Update is called once per frame
@@ -105,8 +107,8 @@ public class CameraController : MonoBehaviour {
 		}
 
 		if (gameObject.CompareTag ("FPCamera")) {
-			rotationX += Input.GetAxis ("Horizontal") * senX * Time.deltaTime;
-			rotationY += Input.GetAxis ("Vertical") * senY * Time.deltaTime;
+			rotationX += Input.GetAxis ("CameraHorizontal") * senX * Time.deltaTime;
+			rotationY += Input.GetAxis ("CameraVertical") * senY * Time.deltaTime;
 
 			//rotationY = Mathf.Clamp (rotationY, minY, maxY);
 			//transform.localEulerAngles = new Vector3 (-rotationY, rotationX, 0);
@@ -123,8 +125,8 @@ public class CameraController : MonoBehaviour {
 
 			transform.position = player.transform.position + player.transform.up;
 
-			rotationX += Input.GetAxis ("Horizontal") * senX * Time.deltaTime;
-			rotationY += Input.GetAxis ("Vertical") * senY * Time.deltaTime;
+			rotationX += Input.GetAxis ("CameraHorizontal") * senX * Time.deltaTime;
+			rotationY += Input.GetAxis ("CameraVertical") * senY * Time.deltaTime;
 
 
 			//rotationY = Mathf.Clamp (rotationY, minY, maxY);

@@ -23,7 +23,7 @@ public class lookaxis : MonoBehaviour {
 
 		color.g -= 0.5f;
 		// global up
-		DrawHelperAtCenter(Vector3.up, color, 3f);
+		//DrawHelperAtCenter(Vector3.up, color, 3f);
 
 		color = Color.blue;
 		// local forward
@@ -31,7 +31,7 @@ public class lookaxis : MonoBehaviour {
 
 		color.b -= 0.5f;
 		// global forward
-		DrawHelperAtCenter(Vector3.forward, color, 3f);
+		//DrawHelperAtCenter(Vector3.forward, color, 3f);
 
 		color = Color.red;
 		// local right
@@ -39,7 +39,10 @@ public class lookaxis : MonoBehaviour {
 
 		color.r -= 0.5f;
 		// global right
-		DrawHelperAtCenter(Vector3.right, color, 3f);
+		//DrawHelperAtCenter(Vector3.right, color, 3f);
+
+		Gizmos.DrawCube (transform.position,new Vector3(this.transform.localScale.x,this.transform.localScale.y,this.transform.localScale.z));
+
 	}
 
 	private void DrawHelperAtCenter(Vector3 direction, Color color, float scale){

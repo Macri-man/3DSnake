@@ -11,33 +11,50 @@ public class CameraSwitch : MonoBehaviour {
 
 	private int curCamera;
 
+	private Camera fpcamera;
+	private Camera maincamera;
+
+
 	// Use this for initialization
 	void Start () {
 		cams = Camera.allCameras;
 		cams = removePortalCams (cams);
 
-
-		for (int i = 0; i < cams.Length; i++) {
+		/*for (int i = 0; i < cams.Length; i++) {
 			if (cams [i].CompareTag ("MainCamera")) {
-				cams [i].enabled = true;
-				cams [i].gameObject.SetActive (true);
-			} else {
-				cams [i].enabled = false;
+				maincamera = cams [i];
+			}else if(cams [i].CompareTag ("FPCamera")){
+				fpcamera = cams [i];
+			}else {
 				cams [i].gameObject.SetActive (false);
 			}
+		}*/
+
+		for (int i = 0; i < cams.Length; i++) {
+			cams [i].gameObject.SetActive (false);
 		}
 
 		/*for (int i = 0; i < cams.Length; i++) {
 			//Debug.Log (cams[i].tag);
 		}*/
 
-		curCamera = 0;
+		curCamera = 1;
 	}
 
 	Camera[] removePortalCams(Camera[] cams){
 		List<Camera> camera = new List<Camera> (cams);
-		for (int i = camera.Count-1; i > 0; i--) {
+		for (int i = camera.Count-1; i >= 0; i--) {
 			if (cams [i].name == "PortalCamera") {
+				camera.Remove(camera[i]);
+			}else if(cams [i].name == "MainCamera"){
+				maincamera = camera[i];
+				maincamera.gameObject.SetActive (true);
+				maincamera.enabled = true;
+				camera.Remove(camera[i]);
+			}else if(cams [i].name == "FPCamera"){
+				fpcamera = camera[i];
+				fpcamera.gameObject.SetActive (true);
+				fpcamera.enabled = true;
 				camera.Remove(camera[i]);
 			}
 		}
@@ -72,10 +89,14 @@ public class CameraSwitch : MonoBehaviour {
 
 		switch (Input.inputString) {
 		case "v":
-			switchCamera (0);
+			cams [curCamera].gameObject.SetActive (false);
+			fpcamera.gameObject.SetActive (false);
+			maincamera.gameObject.SetActive (true);
 			break;
 		case "b":
-			switchCamera (1);
+			cams [curCamera].gameObject.SetActive (false);
+			maincamera.gameObject.SetActive (false);
+			fpcamera.gameObject.SetActive (true);
 			break;
 		case "n":
 			prevCamera ();
@@ -91,27 +112,41 @@ public class CameraSwitch : MonoBehaviour {
 	}
 
 	private void prevCamera(){
-		int num = Mathf.Abs (curCamera-1) % cams.Count ();
-		if (cams[num] != null) {
-			cams[curCamera].enabled = false;
-			cams[curCamera].gameObject.SetActive(false);
+		//Debug.Log ("PrevCamera");
+		int num = 0;
+		if (curCamera - 1 < 0) {
+			num = cams.Count () - 1; 
 		} else {
-			cams[num].enabled = true;
+			num = curCamera - 1;
+		}
+		//Debug.Log (num);
+		//Debug.Log (cams.Count ()-1);
+		if (cams[num] != null) {
+			cams[curCamera].gameObject.SetActive(false);
 			cams[num].gameObject.SetActive(true);
 		}
 		curCamera = num;
+		//Debug.Log ("close PrevCamera");
+
 	}
 
 	private void nextCamera(){
-		int num = Mathf.Abs (curCamera+1) % cams.Count ();
+		//Debug.Log ("NextCamera");
+		int num = 0;
+		if (curCamera >= cams.Count()-1) {
+			num = 0; 
+		}else {
+			num = curCamera + 1;
+		}
+		//Debug.Log (num);
+		//Debug.Log (cams.Count ()-1);
 		if (cams[num] != null) {
-			cams[curCamera].enabled = false;
 			cams[curCamera].gameObject.SetActive(false);
-		} else {
-			cams[num].enabled = true;
 			cams[num].gameObject.SetActive(true);
 		}
 		curCamera = num;
+		//Debug.Log ("Close NextCamera");
+
 	}
 
 	private void switchCamera(int keynum){
