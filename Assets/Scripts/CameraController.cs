@@ -37,8 +37,8 @@ public class CameraController : MonoBehaviour {
 		axisRotation = 1;
 		offset = transform.position - player.transform.position;
 		startquaternion = this.transform.rotation;
-		minY = -45.0f;
-		maxY = 45.0f;
+		minY = -55.0f;
+		maxY = 55.0f;
 	}
 	
 	// Update is called once per frame
@@ -49,6 +49,9 @@ public class CameraController : MonoBehaviour {
 		case "t":
 			break;
 		case "u":
+			Debug.Log ("ROTATION STUFF");
+			Debug.Log (this.rotationX);
+			Debug.Log (this.rotationY);
 			break;
 		default:
 			//Debug.Log(String.Format("Invalid Input String: {0}",int.Parse(Input.inputString)));
@@ -117,7 +120,7 @@ public class CameraController : MonoBehaviour {
 			transform.position = player.transform.position + player.transform.forward;
 
 			//transform.rotation = Quaternion.Euler (-rotationY,0,0) * Quaternion.AngleAxis(rotationX, player.transform.up);
-			//rotationY = Mathf.Clamp (rotationY, minY, maxY);
+			rotationY = Mathf.Clamp (rotationY, minY, maxY);
 			//transform.rotation = Quaternion.AngleAxis(-rotationY, this.transform.right) * Quaternion.AngleAxis(rotationX, player.transform.up);
 			transform.rotation =  Quaternion.AngleAxis(-rotationY, this.transform.right) * Quaternion.AngleAxis (rotationX, player.transform.up) *  this.startquaternion;
 
@@ -129,7 +132,7 @@ public class CameraController : MonoBehaviour {
 			rotationY += Input.GetAxis ("CameraVertical") * senY * Time.deltaTime;
 
 
-			//rotationY = Mathf.Clamp (rotationY, minY, maxY);
+			rotationY = Mathf.Clamp (rotationY, minY, maxY);
 			//transform.localEulerAngles = getVectorRot(player.transform.up);
 			//transform.rotation = Quaternion.AngleAxis(-rotationY, player.transform.right) * Quaternion.AngleAxis(rotationX, player.transform.up);
 

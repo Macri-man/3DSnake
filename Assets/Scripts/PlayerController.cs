@@ -367,18 +367,12 @@ public class PlayerController : MonoBehaviour {
 			} else {
 				tp = Teleports [Teleports.IndexOf (other.gameObject) - 1];
 			}
-		
 
 			string numbers = Regex.Replace (other.gameObject.name, "[^0-9]", "");
 			int num = int.Parse (numbers) + 1;
 
 			string name = "Teleport" + num;
 
-			Debug.Log (tp.name);
-			Debug.Log (tp.tag);
-			Debug.Log (tp.transform.position);
-			Debug.Log (tp.transform.position + tp.transform.forward * 2);
-			Debug.Log (tp.transform.rotation);
 			//Transform temp = Teleport ("Teleport" + (int.Parse (Regex.Replace (this.gameObject.name, "[^0-9]", "")) + 1));
 
 			this.transform.position = tp.transform.position + tp.transform.forward;
