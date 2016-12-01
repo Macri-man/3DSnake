@@ -327,10 +327,11 @@ public class PlayerController : MonoBehaviour {
 			AddTail ();
 			break;
 		case "HitGravity":
-		Debug.Log ("Hitgravity");
+			Debug.Log ("Hitgravity");
 
-		
-			this.transform.rotation = GetRotation (Vector3.up, -transform.forward) * this.transform.rotation;
+			Debug.Log (this.transform.rotation.eulerAngles);
+			this.transform.rotation = GetRotation (transform.up, -transform.forward) * this.transform.rotation;
+			Debug.Log (this.transform.rotation.eulerAngles);
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 	
 		mainCamera.startquaternion = this.transform.rotation;
@@ -345,7 +346,7 @@ public class PlayerController : MonoBehaviour {
 			break;
 		case "FallGravity":
 		Debug.Log ("fallgravity");
-		this.transform.rotation = GetRotation (Vector3.up, transform.forward) * this.transform.rotation;
+			this.transform.rotation = GetRotation (transform.up, transform.forward) * this.transform.rotation;
 		tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 	
 		mainCamera.startquaternion = this.transform.rotation;

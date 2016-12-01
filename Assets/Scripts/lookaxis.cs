@@ -41,7 +41,7 @@ public class lookaxis : MonoBehaviour {
 		// global right
 		//DrawHelperAtCenter(Vector3.right, color, 3f);
 
-		Gizmos.DrawCube (transform.position,new Vector3(this.transform.localScale.x,this.transform.localScale.y,this.transform.localScale.z));
+		Gizmos.DrawCube (transform.position,new Vector3(this.transform.localScale.x+2,this.transform.localScale.y+2,this.transform.localScale.z+2));
 
 	}
 
