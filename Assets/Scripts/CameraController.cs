@@ -37,8 +37,8 @@ public class CameraController : MonoBehaviour {
 		axisRotation = 1;
 		offset = transform.position - player.transform.position;
 		startquaternion = this.transform.rotation;
-		minY = -55.0f;
-		maxY = 55.0f;
+		minY = -50.0f;
+		maxY = 50.0f;
 	}
 	
 	// Update is called once per frame
@@ -99,7 +99,6 @@ public class CameraController : MonoBehaviour {
 			if (gameObject.CompareTag ("FPCamera")) {
 				rotationX += Input.GetAxis ("Mouse X") * senX * Time.deltaTime;
 				rotationY += Input.GetAxis ("Mouse Y") * senY * Time.deltaTime;
-
 			}
 			
 			if (gameObject.CompareTag ("MainCamera")) {

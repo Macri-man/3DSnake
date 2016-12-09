@@ -52,14 +52,22 @@ public class PlayerController : MonoBehaviour {
 
 	public int activeState;
 
+	private GameBaord board;
+
+	private Transform startposition;
+
 
 	// Use this for initialization
 	void Start () {
 		rb = GetComponent<Rigidbody>();
 
+		startposition = this.transform;
+
+		/*
 		count = 0;
 		setScore ();
 		win.text = "";
+		*/
 		speed = 2;
 		startingRotation = this.transform.rotation;
 
@@ -112,6 +120,18 @@ public class PlayerController : MonoBehaviour {
 			Vector3 newposition = transform.position + (-transform.forward) * i;
 			tailBlocks[i]=Instantiate (prefab, newposition, Quaternion.identity, transform.transform);
 		}*/
+	}
+
+	void restart(){
+		this.transform.rotation = startposition.rotation;
+		this.transform.position = startposition.position;
+		foreach (var item in tailBlocks) {
+			Debug.Log (item);
+		}
+		for (int i = 0; i < tailBlocks.Count-1; i++) {
+			tailBlocks [i].GetComponent<TailController> ().transform.rotation = startposition.rotation;
+			tailBlocks [i].GetComponent<TailController> ().transform.position = new Vector3(startposition.position.x,startposition.position.y,startposition.position.z - (i+1));
+		}
 	}
 	
 	// Update is called once per frame
@@ -292,7 +312,7 @@ public class PlayerController : MonoBehaviour {
 	void OnTriggerEnter(Collider other){
 
 		switch (other.gameObject.tag) {
-		case "Orb1":
+		/*case "Orb1":
 			other.GetComponentInParent<OrbCreation> ().gone = true;
 			other.GetComponentInParent<OrbCreation> ().count = 1;
 			Destroy (other.gameObject);
@@ -325,7 +345,7 @@ public class PlayerController : MonoBehaviour {
 			Debug.Log ("Ate Orb3 Create Snake");
 
 			AddTail ();
-			break;
+			break;*/
 		case "HitGravity":
 			Debug.Log ("Hitgravity");
 
@@ -390,7 +410,7 @@ public class PlayerController : MonoBehaviour {
 			tailBlocks [0].GetComponent<TailController> ().activeState = 4;
 			break;
 		case "Collision":
-			win.text = "LOSE!";
+			//win.text = "LOSE!";
 			StopAllCoroutines ();
 			break;
 		default:
@@ -407,11 +427,11 @@ public class PlayerController : MonoBehaviour {
 
 			AddTail ();
 		}*/
-
+		/*
 		if (count > 4) {
 			win.text = "WIN!";
 			//StopAllCoroutines ();
-		}
+		}*/
 
 	}
 	
@@ -427,7 +447,7 @@ public class PlayerController : MonoBehaviour {
 	}
 
 
-	void AddTail(){
+	public void AddTail(){
 		GameObject Last = tailBlocks.Last();
 
 		Vector3 newposition = Last.transform.position + (-Last.transform.forward);

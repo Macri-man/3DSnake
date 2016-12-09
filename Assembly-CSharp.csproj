@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\CameraLookatPlayer.cs" />
      <Compile Include="Assets\Scripts\CameraSwitch.cs" />
+     <Compile Include="Assets\Scripts\GameBaord.cs" />
      <Compile Include="Assets\Scripts\GameStats.cs" />
      <Compile Include="Assets\Scripts\OrbCreation.cs" />
      <Compile Include="Assets\Scripts\PlayerController.cs" />
